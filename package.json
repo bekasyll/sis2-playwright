@@ -1,0 +1,21 @@
+{
+  "name": "sis2-playwright-toolshop",
+  "version": "1.0.0",
+  "description": "SIS 2: Playwright end-to-end tests for practicesoftwaretesting.com (Toolshop)",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:bugs": "BASE_URL=https://with-bugs.practicesoftwaretesting.com API_URL=https://api-with-bugs.practicesoftwaretesting.com playwright test",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit"
+  },
+  "author": "Assylbekov Bekassyl",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0"
+  }
+}
