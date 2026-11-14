@@ -6,6 +6,9 @@ test.describe('TC-2 Log in', () => {
     await loginPage.signIn(existingCustomer.email, existingCustomer.password);
 
     await expect(page).toHaveURL(/\/account/);
+    // After login the app reloads /account. From GitHub runner IPs Cloudflare answers that
+    // request with a bot check (403, cf-mitigated: challenge), so the page cannot be verified there.
+    test.skip(await loginPage.isBlockedByBotCheck(), 'Cloudflare bot check on /account (runner IP), not an application defect');
     await expect(loginPage.userMenu).toContainText(`${existingCustomer.first_name} ${existingCustomer.last_name}`);
   });
 

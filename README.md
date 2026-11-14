@@ -108,6 +108,12 @@ To open a trace: download the artefact, then `npx playwright show-trace trace.zi
 
 `fullyParallel: true` lets `--shard` split individual tests, not whole files. `BASE_URL` and `API_URL` can be set under Settings → Secrets and variables → Actions → Variables; if they are not set, the public Toolshop is used.
 
+### Known limitation: Cloudflare bot check on GitHub runners
+
+The Toolshop is behind Cloudflare. After a successful login the app reloads `/account`, and from GitHub runner IPs (Azure data centres) Cloudflare answers that request with its "Performing security verification" page (`403`, `cf-mitigated: challenge`) instead of the account page. The login API call itself succeeds (`200`). Evidence: the failure screenshot, page snapshot and trace in the `test-results-2` artefact of run [43618892900](https://github.com/bekasyll/sis2-playwright/actions/runs/43618892900). From a home IP and in the Playwright Linux container the same test passes.
+
+Retries do not help (the bot check is shown every time), and getting around the bot check would mean circumventing the site's protection. So TC-2a detects the bot check page (`BasePage.isBlockedByBotCheck()`) and is reported as **skipped** with the reason "Cloudflare bot check on /account (runner IP), not an application defect". In every other case, including locally, the test runs and asserts as before; if neither the header nor the bot check appears, the test still fails.
+
 ### Runtime
 
 "Before" is the same workflow with one job (`shardIndex: [1]`, `shardTotal: [1]`), "after" is the 4-shard version. Both numbers come from GitHub Actions.
