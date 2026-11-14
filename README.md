@@ -1,5 +1,7 @@
 # SIS 2 — Playwright tests for the Toolshop
 
+[![Playwright Tests](https://github.com/bekasyll/sis2-playwright/actions/workflows/playwright.yml/badge.svg?branch=main)](https://github.com/bekasyll/sis2-playwright/actions/workflows/playwright.yml)
+
 End-to-end tests for <https://practicesoftwaretesting.com>, written with Playwright Test in TypeScript.
 Software Testing and Debugging, KBTU 2026 · Assylbekov Bekassyl
 
@@ -12,10 +14,10 @@ Software Testing and Debugging, KBTU 2026 · Assylbekov Bekassyl
 
 ## Run it
 
-Requires Node.js 18 or newer.
+Requires Node.js 20 or newer.
 
 ```bash
-npm install
+npm ci
 npx playwright install chromium
 npx playwright test
 npx playwright show-report
@@ -69,4 +71,70 @@ playwright.config.ts
 
 ## CI
 
-`.github/workflows/playwright.yml` runs the suite on every push and uploads the HTML report as an artifact (Actions → the run → Artifacts → `playwright-report`).
+[![Playwright Tests](https://github.com/bekasyll/sis2-playwright/actions/workflows/playwright.yml/badge.svg?branch=main)](https://github.com/bekasyll/sis2-playwright/actions/workflows/playwright.yml)
+
+**CI system:** GitHub Actions. The repository already lives on GitHub, so Actions needs no server of its own, is free for a public repository, keeps artefacts next to the run, and supports a job matrix for sharding out of the box. (Jenkins, covered in Week 10, would need its own server and a tunnel for GitHub webhooks.)
+
+**Pipeline** (`.github/workflows/playwright.yml`):
+
+- runs on every push to any branch and on every pull request (plus `workflow_dispatch` for manual runs);
+- `actions/setup-node` with `cache: npm` (keyed on `package-lock.json`), then `npm ci`;
+- Chromium installed with system dependencies: `npx playwright install --with-deps chromium`;
+- the full suite, no `--grep` or `--project` filters, split into 4 shards (`--shard=i/4`) running in parallel; `fail-fast: false` so one red shard does not cancel the others;
+- the `merge-reports` job downloads the 4 blob reports and merges them into one HTML report and one JUnit file (`merge.config.ts`);
+- reports and traces are uploaded with `if: !cancelled()`, i.e. also when tests fail;
+- `concurrency` cancels an outdated run when a new commit is pushed to the same branch.
+
+**Artefacts** (Actions → the run → Artifacts), kept for 14 days:
+
+| Artefact | Contents |
+|----------|----------|
+| `playwright-report` | merged HTML report of all 4 shards, traces included |
+| `test-results-1` … `test-results-4` | per shard: traces, screenshots and videos of failed/retried tests, `reports/junit.xml` |
+| `junit-report` | merged `junit-merged.xml` |
+| `blob-report-1` … `blob-report-4` | intermediate shard reports, kept 1 day |
+
+To open a trace: download the artefact, then `npx playwright show-trace trace.zip`, or drop the file onto <https://trace.playwright.dev>.
+
+**CI settings** (`playwright.config.ts`, active when `CI` is set; GitHub Actions sets it automatically):
+
+| Setting | Locally | In CI | Why |
+|---------|---------|-------|-----|
+| `forbidOnly` | `false` | `true` | a forgotten `test.only` fails the run instead of silently running one test |
+| `retries` | `0` | `2` | the site is a shared public demo; a slow response makes a test *flaky*, not red |
+| `workers` | auto | `2` | GitHub runners have 2–4 vCPUs |
+| `reporter` | `list`, `html` | `list`, `blob`, `junit` (`reports/junit.xml`) | blob for merging shards, JUnit for any CI tool |
+| `trace` | `on-first-retry` | `on-first-retry` | a trace of exactly the attempt that failed |
+
+`fullyParallel: true` lets `--shard` split individual tests, not whole files. `BASE_URL` and `API_URL` can be set under Settings → Secrets and variables → Actions → Variables; if they are not set, the public Toolshop is used.
+
+### Runtime
+
+"Before" is the same workflow with one job (`shardIndex: [1]`, `shardTotal: [1]`), "after" is the 4-shard version. Both numbers come from GitHub Actions.
+
+| Configuration | Total run time | Run tests step (slowest shard) | Run |
+|---------------|----------------|--------------------------------|-----|
+| 1 job, no sharding | TODO | TODO | [run](TODO) |
+| 4 shards + merge | TODO | TODO | [run](TODO) |
+
+Conclusion: TODO
+
+### Running locally in CI mode
+
+```bash
+npm ci
+npx playwright install --with-deps chromium   # --with-deps only matters on Linux
+CI=true npx playwright test                   # PowerShell: $env:CI="true"; npx playwright test
+```
+
+Shards and the report merge, the same way CI does it:
+
+```bash
+mkdir -p all-blob-reports
+CI=true npx playwright test --shard=1/2 && cp blob-report/*.zip all-blob-reports/
+CI=true npx playwright test --shard=2/2 && cp blob-report/*.zip all-blob-reports/
+npx playwright merge-reports --config merge.config.ts ./all-blob-reports
+npx playwright show-report
+```
+
+Checked locally before the first push: the CI run writes `blob-report/` and `reports/junit.xml`; with a temporary `test.only` the CI run fails (`exit 1`, error points at the `test.only` line); two shards merge into one report with all 8 tests in `reports/junit-merged.xml`.

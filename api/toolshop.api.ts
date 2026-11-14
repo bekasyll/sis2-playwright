@@ -9,7 +9,7 @@ import { Customer } from '../data/user.factory';
  *      (e.g. "the new password really works").
  * The behaviour under test is always exercised through the UI.
  */
-export const API_URL = process.env.API_URL ?? 'https://api.practicesoftwaretesting.com';
+export const API_URL = process.env.API_URL || 'https://api.practicesoftwaretesting.com';
 
 export class ToolshopApi {
   constructor(private readonly request: APIRequestContext) {}
