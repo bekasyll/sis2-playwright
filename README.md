@@ -87,6 +87,14 @@ playwright.config.ts
 
 The npm cache is restored from the second run on: the `setup-node` log shows `Cache restored from key: node-cache-Linux-x64-npm-…` ([screenshot](screenshots/09-ci-npm-cache-restored.png), run [43621806938](https://github.com/bekasyll/sis2-playwright/actions/runs/43621806938)).
 
+**Runs** for the submission:
+
+| Event | Run |
+|-------|-----|
+| push to a feature branch (`ci-demo`) | [43623574391](https://github.com/bekasyll/sis2-playwright/actions/runs/43623574391) |
+| pull request ([#2](https://github.com/bekasyll/sis2-playwright/pull/2), `ci-demo` → `main`) | [43623624459](https://github.com/bekasyll/sis2-playwright/actions/runs/43623624459) |
+| push to `main` | [43621806938](https://github.com/bekasyll/sis2-playwright/actions/runs/43621806938) |
+
 **Artefacts** (Actions → the run → Artifacts), kept for 14 days:
 
 | Artefact | Contents |
