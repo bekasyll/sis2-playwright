@@ -11,6 +11,8 @@ Put the images in this folder and keep the file names below, so the links work.
 | `05-with-bugs-run.png` | `npm run test:bugs`: which tests go red against the buggy build |
 | `06-ci-run.png` | GitHub → Actions: a green workflow run (optional) |
 | `07-bug-forgot-password-raw-key.png` | Defect evidence: the forgot-password success banner shows the raw translation key `page.forgot-password.confirm` |
+| `08-ci-trace-cloudflare.png` | CI trace from the `test-results-2` artefact opened in trace.playwright.dev: after login `/account` shows the Cloudflare bot check |
+| `09-ci-npm-cache-restored.png` | CI log, `setup-node` step: `Cache restored from key: node-cache-Linux-x64-npm-…` |
 
 `02` and `05` are the real, unedited output of the commands, rendered into a terminal-style image with Playwright (the terminal had no screen-recording permission). In `05` the middle of the error details is cut, marked with "…". `03` and `04` are Playwright screenshots of the real HTML report and UI mode.
 
@@ -20,3 +22,5 @@ Put the images in this folder and keep the file names below, so the links work.
 ![UI mode](04-ui-mode.png)
 ![Run against the buggy build](05-with-bugs-run.png)
 ![Defect: raw translation key](07-bug-forgot-password-raw-key.png)
+![CI trace: Cloudflare bot check](08-ci-trace-cloudflare.png)
+![CI: npm cache restored](09-ci-npm-cache-restored.png)

@@ -85,6 +85,8 @@ playwright.config.ts
 - reports and traces are uploaded with `if: !cancelled()`, i.e. also when tests fail;
 - `concurrency` cancels an outdated run when a new commit is pushed to the same branch.
 
+The npm cache is restored from the second run on: the `setup-node` log shows `Cache restored from key: node-cache-Linux-x64-npm-…` ([screenshot](screenshots/09-ci-npm-cache-restored.png), run [43621806938](https://github.com/bekasyll/sis2-playwright/actions/runs/43621806938)).
+
 **Artefacts** (Actions → the run → Artifacts), kept for 14 days:
 
 | Artefact | Contents |
@@ -95,6 +97,10 @@ playwright.config.ts
 | `blob-report-1` … `blob-report-4` | intermediate shard reports, kept 1 day |
 
 To open a trace: download the artefact, then `npx playwright show-trace trace.zip`, or drop the file onto <https://trace.playwright.dev>.
+
+![Trace from CI in trace.playwright.dev](screenshots/08-ci-trace-cloudflare.png)
+
+The trace above is from the `test-results-2` artefact of run [43618892900](https://github.com/bekasyll/sis2-playwright/actions/runs/43618892900): it is how the Cloudflare bot check (see below) was found.
 
 **CI settings** (`playwright.config.ts`, active when `CI` is set; GitHub Actions sets it automatically):
 
