@@ -120,10 +120,14 @@ Retries do not help (the bot check is shown every time), and getting around the 
 
 | Configuration | Total run time | Run tests step (slowest shard) | Run |
 |---------------|----------------|--------------------------------|-----|
-| 1 job, no sharding | TODO | TODO | [run](TODO) |
-| 4 shards + merge | TODO | TODO | [run](TODO) |
+| 1 job, no sharding | 1 min 19 s | 40 s | [43621442484](https://github.com/bekasyll/sis2-playwright/actions/runs/43621442484) |
+| 4 shards + merge | 1 min 20 s (another run: 1 min 24 s) | 23 s (another run: 26 s) | [43621614217](https://github.com/bekasyll/sis2-playwright/actions/runs/43621614217), [43620105900](https://github.com/bekasyll/sis2-playwright/actions/runs/43620105900) |
 
-Conclusion: TODO
+Per job in the 4-shard run 43621614217: shards took 31–50 s each (the tests themselves 5–23 s), then `Merge reports` took 26 s.
+
+Conclusion: sharding cut the test step of the slowest job from 40 s to 23–26 s, but the total run time did not change (about 1 min 20 s), because the suite has only 8 tests: each shard spends ~25 s on checkout, `npm ci` and the Chromium install, the merge job adds 13–26 s after the shards, and one shard still carries the slowest test (TC-3, the checkout flow). Sharding would start to pay off once the suite's own run time is well above this fixed ~40 s overhead.
+
+Measured from single push runs (not a median of three `workflow_dispatch` runs): starting a manual run needs the GitHub UI or an authenticated API call.
 
 ### Running locally in CI mode
 
